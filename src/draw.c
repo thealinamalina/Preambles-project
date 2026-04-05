@@ -132,7 +132,7 @@ int UpdateScreen(SDL_Renderer *renderer, TTF_Font *font,
             }
         }
         if (count_usage[call.preamble_number] > 0) {
-            SDL_RenderDrawLine(renderer, MARGIN + padding * i, MARGIN + 50,
+            SDL_RenderDrawLine(renderer, MARGIN + padding * call.abonent_id, MARGIN + 50,
                                MARGIN + (WORK_WIDTH) / (MAX_PREAMBLES - 1) + PREAMBLE_PADD * call.preamble_number + 5,
                                SCREEN_HEIGHT - MARGIN - 30);
         }
