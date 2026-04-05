@@ -1,7 +1,7 @@
 #include "draw.h"
 #include "simulation.h"
 
-const SDL_Color COLOR_CLEAR = {0, 0, 0, 0};
+const SDL_Color COLOR_CLEAR = {0, 0, 0, 255};
 const SDL_Color COLOR_WHITE = {255, 255, 255, 255};
 const SDL_Color COLOR_BLUE = {0, 0, 255, 255};
 const SDL_Color COLOR_RED = {255, 0, 0, 255};
@@ -9,11 +9,11 @@ const SDL_Color COLOR_GREEN = {0, 255, 0, 255};
 const SDL_Color COLOR_GRAY = {100, 100, 100, 255};
 
 // Рисует основу (номера абонентов, станцию...)
-int DrawBase(SDL_Renderer *renderer, TTF_Font *font, int abonent_count, int padding) {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+int DrawBase(SDL_Renderer *renderer, TTF_Font *font, int abonent_count, int padding, int *count_usage) {
+    SDL_SetRenderDrawColor(renderer, WHITE);
     SDL_RenderClear(renderer);
 
-    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+    SDL_SetRenderDrawColor(renderer, GRAY);
     SDL_Rect rect_bs = {MARGIN, SCREEN_HEIGHT - MARGIN - 10, SCREEN_WIDTH - MARGIN * 2, 10};
     SDL_RenderFillRect(renderer, &rect_bs);
 
@@ -37,14 +37,23 @@ int DrawBase(SDL_Renderer *renderer, TTF_Font *font, int abonent_count, int padd
         SDL_DestroyTexture(texture);
         SDL_FreeSurface(surface);*/
 
-        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+        SDL_SetRenderDrawColor(renderer, BLUE);
         SDL_RenderDrawRect(renderer, &(SDL_Rect){MARGIN + padding * i, MARGIN + 50, 5, 5});
     }
 
     // Рисуем преамбулы
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, RED);
     SDL_Rect rect = {MARGIN + (WORK_WIDTH) / (MAX_PREAMBLES - 1), SCREEN_HEIGHT - MARGIN - 30, 10, 30};
     for (int i = 0; i < MAX_PREAMBLES; ++i) {
+        if (count_usage != NULL) {
+            if (count_usage[i] == 0) {
+                SDL_SetRenderDrawColor(renderer, GRAY);
+            } else if (count_usage[i] == 1) {
+                SDL_SetRenderDrawColor(renderer, GREEN);
+            } else {
+                SDL_SetRenderDrawColor(renderer, RED);
+            }
+        }
         SDL_RenderFillRect(renderer, &rect);
         rect.x += PREAMBLE_PADD;
     }
@@ -94,7 +103,15 @@ int UpdateScreen(SDL_Renderer *renderer, TTF_Font *font,
                  int abonent_count, int padding, List *list, char colored, int attemption_number) {
 
     SDL_Delay(70);
-    DrawBase(renderer, font, abonent_count, padding);
+
+    int i = 0;
+    int count_usage[64] = {0};
+    while (list->calls[i].type == ABONENT_SEND_PREAMBLE) {
+        count_usage[list->calls[i].preamble_number]++;
+        i++;
+    }
+
+    DrawBase(renderer, font, abonent_count, padding, count_usage);
 
     // Номер попытки
     char buf[20];
@@ -113,22 +130,17 @@ int UpdateScreen(SDL_Renderer *renderer, TTF_Font *font,
     SDL_FreeSurface(surface);
 
     // Рисует линии
-    int i = 0;
-    int count_usage[64] = {0};
-    while (list->calls[i].type == ABONENT_SEND_PREAMBLE) {
-        count_usage[list->calls[i].preamble_number]++;
-        i++;
-    }
-    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+
+    SDL_SetRenderDrawColor(renderer, GRAY);
     i = 0;
     while (list->calls[i].type == ABONENT_SEND_PREAMBLE) {
         Call call = list->calls[i];
         if (colored) {
             if (count_usage[call.preamble_number] == 1) {
-                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+                SDL_SetRenderDrawColor(renderer, GREEN);
             }
             else {
-                SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+                SDL_SetRenderDrawColor(renderer, RED);
             }
         }
         if (count_usage[call.preamble_number] > 0) {

@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
     }
 
     int padding = (SCREEN_WIDTH - MARGIN * 2) / abonent_count;
-    DrawBase(renderer, font, abonent_count, padding);
+    DrawBase(renderer, font, abonent_count, padding, NULL);
 
     int* ready_list = calloc(abonent_count, sizeof(int));
     if (!ready_list) {
