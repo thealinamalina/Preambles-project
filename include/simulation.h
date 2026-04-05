@@ -1,9 +1,17 @@
 #ifndef SIMULATION_H_
 #define SIMULATION_H_
 
+#include <stdbool.h>
 #include <stddef.h>
 
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+
 #define MAX_PREAMBLES 64
+#define MAX_ATTEMPTS 500
+#define MAX_ABONENTS_STATISTICS 150
+#define STAT_ATTEMPTS_NUMBER 50
 
 typedef enum States_e{
     ABONENT_SEND_PREAMBLE,
@@ -30,5 +38,12 @@ int list_init(List* l);
 int list_add(List* l, Call_type type, int abonent_id, int preamble_number);
 void list_free(List* l);
 int attempt(int abonent_count, int* ready_list, List* out_list);
+
+typedef struct {
+    SDL_Point data[MAX_ABONENTS_STATISTICS + 1];
+    char is_processed;
+} Statistics_data;
+
+int process_data(Statistics_data *stat_data);
 
 #endif // SIMULATION_H_

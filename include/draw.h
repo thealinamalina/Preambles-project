@@ -14,12 +14,15 @@ typedef struct {
 
 #define SCREEN_WIDTH 1366
 #define SCREEN_HEIGHT 768
+#define PLOT_SCREEN_WIDTH 800
+#define PLOT_SCREEN_HEIGHT 600
 #define MARGIN (int)(SCREEN_WIDTH * 0.05)
 #define WORK_WIDTH SCREEN_WIDTH - MARGIN * 2
 #define WORK_HEIGHT SCREEN_HEIGHT - MARGIN * 2
 #define PREAMBLE_PADD (SCREEN_WIDTH - MARGIN * 2) / (MAX_PREAMBLES - 1)
 #define WHITE 255, 255, 255, 255
 #define GRAY 180, 180, 180, 255
+#define BLACK 0, 0, 0, 255
 #define RED 220, 0, 0, 255
 #define GREEN 13, 151, 44, 255
 #define BLUE 0, 0, 255, 255
@@ -32,5 +35,7 @@ int DrawBase(SDL_Renderer *renderer, TTF_Font *font,
 int UpdateScreen(SDL_Renderer *renderer, TTF_Font *font,
                  int abonent_count, int padding, List *list,
                  int attemption_number, int *ready_list);
+
+int DrawPlot(SDL_Renderer *renderer, TTF_Font *font, Statistics_data *stat_data);
 
 #endif // DRAW_H_

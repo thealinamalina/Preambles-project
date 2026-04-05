@@ -158,3 +158,42 @@ int attempt(int abonent_count, int* ready_list, List* out_list) {
         return success;
     }
 }
+
+int process_data(Statistics_data *stat_data) {
+    stat_data->data[0].x = 40;
+    stat_data->data[0].y = 40;
+    for (int abonent_count = 1; abonent_count <= MAX_ABONENTS_STATISTICS; ++abonent_count) {
+        double attempts_sum = 0;
+        int total_attempts = 0;
+        for (int i = 0; i < STAT_ATTEMPTS_NUMBER; ++i) {
+            int success = 0;
+            int attemption_number = 0;
+            int* ready_list = calloc(abonent_count, sizeof(int));
+            if (!ready_list) {
+                printf("Error: Memory allocation failed.\n");
+            }
+            List l;
+            if (list_init(&l) != 0) {
+                printf("Error: List initialization failed.\n");
+                free(ready_list);
+            }
+            while (attemption_number < MAX_ATTEMPTS) {
+                int res = attempt(abonent_count, ready_list, &l);
+                if (res == -1) {
+                    break;
+                }
+                success += res;
+                attemption_number++;
+            }
+            if (success == abonent_count) {
+                total_attempts++;
+                attempts_sum += attemption_number;
+            }
+            list_free(&l);
+            free(ready_list);
+        }
+        stat_data->data[abonent_count].x = abonent_count + 20;
+        stat_data->data[abonent_count].y = attempts_sum / total_attempts + 20; // Возможно деление на 0
+    }
+    stat_data->is_processed = true;
+}

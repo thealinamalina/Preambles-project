@@ -120,7 +120,7 @@ int UpdateScreen(SDL_Renderer *renderer, TTF_Font *font,
     DrawBase(renderer, font, abonent_count, padding, count_usage, ready_list);
 
     // Номер попытки
-    char buf[20];
+    char buf[32];
     sprintf(buf, "Попытка № %d", attemption_number);
     SDL_Surface *surface = TTF_RenderUTF8_Blended(font, buf, COLOR_BLUE);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -154,5 +154,21 @@ int UpdateScreen(SDL_Renderer *renderer, TTF_Font *font,
         }
         i++;
     }
+    SDL_RenderPresent(renderer);
+}
+
+int DrawPlot(SDL_Renderer *renderer, TTF_Font *font, Statistics_data *stat_data) {
+    SDL_SetRenderDrawColor(renderer, WHITE);
+    SDL_RenderClear(renderer);
+
+    int padding = 20;
+    // Рисуем оси
+    SDL_SetRenderDrawColor(renderer, BLACK);
+    SDL_RenderDrawLine(renderer, padding, PLOT_SCREEN_HEIGHT - padding, padding, padding);
+    SDL_RenderDrawLine(renderer, padding, PLOT_SCREEN_HEIGHT - padding,
+                       PLOT_SCREEN_WIDTH - padding, PLOT_SCREEN_HEIGHT - padding);
+
+    SDL_RenderDrawLines(renderer, stat_data->data, MAX_ABONENTS_STATISTICS);
+
     SDL_RenderPresent(renderer);
 }

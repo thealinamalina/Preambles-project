@@ -9,7 +9,6 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
-#define MAX_ATTEMPTS 500
 #define FRAME_DELAY 2500
 
 int main(int argc, char* argv[]) {
@@ -31,10 +30,12 @@ int main(int argc, char* argv[]) {
         printf("Error: Failed to init SDL.\n");
         goto delete;
     }
-    SDL_Window *window = SDL_CreateWindow("Base station simulation",
-                                          SDL_WINDOWPOS_CENTERED,
-                                          SDL_WINDOWPOS_CENTERED,
-                                          SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+    SDL_Window *window = SDL_CreateWindow(
+        "Base station simulation",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+
     if (window == NULL) {
         printf("Error: Failed to create window.\n");
         goto delete_window;
@@ -55,6 +56,22 @@ int main(int argc, char* argv[]) {
         goto delete_font;
     }
 
+    // Дополнительное окно с графиком
+    SDL_Window *plot_window = SDL_CreateWindow(
+        "Base station simulation",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        PLOT_SCREEN_WIDTH, PLOT_SCREEN_HEIGHT, 0);
+    if (plot_window == NULL) {
+        printf("Error: Failed to create plot window.\n");
+        goto delete_plot_window;
+    }
+    SDL_Renderer *plot_renderer = SDL_CreateRenderer(plot_window, -1, SDL_RENDERER_ACCELERATED);
+    if (plot_renderer == NULL) {
+        printf("Error: Failed to create plot renderer.\n");
+        goto delete_plot_renderer;
+    }
+
     int padding = (SCREEN_WIDTH - MARGIN * 2) / abonent_count;
     DrawBase(renderer, font, abonent_count, padding, NULL, NULL);
 
@@ -68,11 +85,14 @@ int main(int argc, char* argv[]) {
         printf("Error: List initialization failed.\n");
         goto delete_list;
     }
+    Statistics_data stat_data;
+    stat_data.is_processed = false;
+
     int attemption_number = 0;
     int success = 0;
     int attempt_res = 0;
-    size_t i = 0;
     int running = 1;
+    size_t i = 0;
     SDL_Event event;
     Call_type simulation_step = ABONENT_SEND_PREAMBLE;
     Uint32 prev_time = SDL_GetTicks() - FRAME_DELAY;
@@ -88,6 +108,12 @@ int main(int argc, char* argv[]) {
             case SDL_KEYDOWN:
                 switch (event.key.keysym.sym)
                 {
+                case SDLK_p: // Запустить симуляции и открыть график
+                    if (stat_data.is_processed == false) {
+                        process_data(&stat_data);
+                    }
+                    DrawPlot(plot_renderer, font, &stat_data);
+                    break;
                 case SDLK_SPACE:
                     running = -running; // Пауза
                     break;
@@ -183,6 +209,10 @@ delete_all:
     list_free(&l);
 delete_list:
     free(ready_list);
+delete_plot_renderer:
+    SDL_DestroyRenderer(plot_renderer);
+delete_plot_window:
+    SDL_DestroyWindow(plot_window);
 delete_ready_list:
     TTF_CloseFont(font);
 delete_font:
