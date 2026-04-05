@@ -9,7 +9,8 @@ const SDL_Color COLOR_GREEN = {0, 255, 0, 255};
 const SDL_Color COLOR_GRAY = {100, 100, 100, 255};
 
 // Рисует основу (номера абонентов, станцию...)
-int DrawBase(SDL_Renderer *renderer, TTF_Font *font, int abonent_count, int padding, int *count_usage) {
+int DrawBase(SDL_Renderer *renderer, TTF_Font *font,
+             int abonent_count, int padding, int *count_usage, int *ready_list) {
     SDL_SetRenderDrawColor(renderer, WHITE);
     SDL_RenderClear(renderer);
 
@@ -36,9 +37,13 @@ int DrawBase(SDL_Renderer *renderer, TTF_Font *font, int abonent_count, int padd
         SDL_RenderCopy(renderer, texture, NULL, &text_rect);
         SDL_DestroyTexture(texture);
         SDL_FreeSurface(surface);*/
-
-        SDL_SetRenderDrawColor(renderer, BLUE);
-        SDL_RenderDrawRect(renderer, &(SDL_Rect){MARGIN + padding * i, MARGIN + 50, 5, 5});
+        if (ready_list != NULL && ready_list[i] == 1) {
+            SDL_SetRenderDrawColor(renderer, GREEN);
+            SDL_RenderFillRect(renderer, &(SDL_Rect){MARGIN + padding * i, MARGIN + 50, 5, 10});
+        } else {
+            SDL_SetRenderDrawColor(renderer, BLUE);
+            SDL_RenderDrawRect(renderer, &(SDL_Rect){MARGIN + padding * i, MARGIN + 50, 5, 5});
+        }
     }
 
     // Рисуем преамбулы
@@ -100,7 +105,8 @@ int DrawBase(SDL_Renderer *renderer, TTF_Font *font, int abonent_count, int padd
 
 // Каждый кадр обновляет экран
 int UpdateScreen(SDL_Renderer *renderer, TTF_Font *font,
-                 int abonent_count, int padding, List *list, char colored, int attemption_number) {
+                 int abonent_count, int padding, List *list,
+                 int attemption_number, int *ready_list) {
 
     SDL_Delay(70);
 
@@ -111,7 +117,7 @@ int UpdateScreen(SDL_Renderer *renderer, TTF_Font *font,
         i++;
     }
 
-    DrawBase(renderer, font, abonent_count, padding, count_usage);
+    DrawBase(renderer, font, abonent_count, padding, count_usage, ready_list);
 
     // Номер попытки
     char buf[20];
@@ -135,13 +141,11 @@ int UpdateScreen(SDL_Renderer *renderer, TTF_Font *font,
     i = 0;
     while (list->calls[i].type == ABONENT_SEND_PREAMBLE) {
         Call call = list->calls[i];
-        if (colored) {
-            if (count_usage[call.preamble_number] == 1) {
-                SDL_SetRenderDrawColor(renderer, GREEN);
-            }
-            else {
-                SDL_SetRenderDrawColor(renderer, RED);
-            }
+        if (count_usage[call.preamble_number] == 1) {
+            SDL_SetRenderDrawColor(renderer, GREEN);
+        }
+        else {
+            SDL_SetRenderDrawColor(renderer, RED);
         }
         if (count_usage[call.preamble_number] > 0) {
             SDL_RenderDrawLine(renderer, MARGIN + padding * call.abonent_id, MARGIN + 50,

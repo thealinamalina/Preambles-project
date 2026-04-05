@@ -25,10 +25,12 @@ typedef struct {
 #define BLUE 0, 0, 255, 255
 
 // Рисует основу (номера абонентов, станцию...)
-int DrawBase(SDL_Renderer *renderer, TTF_Font *font, int abonent_count, int padding, int *count_usage);
+int DrawBase(SDL_Renderer *renderer, TTF_Font *font,
+             int abonent_count, int padding, int *count_usage, int *ready_list);
 
 // Каждый кадр обновляет экран
 int UpdateScreen(SDL_Renderer *renderer, TTF_Font *font,
-                 int abonent_count, int padding, List *list, char colored, int attemption_number);
+                 int abonent_count, int padding, List *list,
+                 int attemption_number, int *ready_list);
 
 #endif // DRAW_H_

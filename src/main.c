@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
     }
 
     int padding = (SCREEN_WIDTH - MARGIN * 2) / abonent_count;
-    DrawBase(renderer, font, abonent_count, padding, NULL);
+    DrawBase(renderer, font, abonent_count, padding, NULL, NULL);
 
     int* ready_list = calloc(abonent_count, sizeof(int));
     if (!ready_list) {
@@ -102,19 +102,16 @@ int main(int argc, char* argv[]) {
                 break;
             }
         }
-
         if (running == -1) {
             continue;
         }
-
         if (i == l.size) {
-
             if (SDL_GetTicks() - prev_time < FRAME_DELAY) {
                 continue;
             }
             prev_time = SDL_GetTicks();
 
-            UpdateScreen(renderer, font, abonent_count, padding, &l, 1, attemption_number);
+            UpdateScreen(renderer, font, abonent_count, padding, &l, attemption_number, ready_list);
 
             if (success == abonent_count) {
                 //break;
@@ -165,8 +162,6 @@ int main(int argc, char* argv[]) {
         }
         i++;
         printf("%d\n", SDL_GetTicks());
-
-        //SDL_Delay(0);
     }
 
     if (success == abonent_count) {
